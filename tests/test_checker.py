@@ -49,6 +49,7 @@ def test_run_sends_notification_for_matching_new_bids(monkeypatch):
     sent_bids = mock_slack.call_args[0][1]
     assert len(sent_bids) == 1
     assert sent_bids[0]["bidNtceNo"] == "001"
+    assert mock_slack.call_args[1].get("triggered_by") == "scheduled"
 
     updated_seen = mock_update.call_args[0][3]
     assert any(s["id"] == "001" for s in updated_seen)
@@ -146,6 +147,7 @@ def test_run_manual_mode_uses_env_keywords(monkeypatch):
     sent_bids = mock_slack.call_args[0][1]
     assert len(sent_bids) == 1
     assert sent_bids[0]["bidNtceNo"] == "001"
+    assert mock_slack.call_args[1].get("triggered_by") == "manual"
 
 
 def test_run_manual_mode_skips_seen_list(monkeypatch):

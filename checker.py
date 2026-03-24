@@ -30,7 +30,7 @@ def run(keywords_path: str = "keywords.txt") -> None:
     search_keywords_env = os.environ.get("SEARCH_KEYWORDS", "").strip()
     if search_keywords_env:
         keywords = [k for k in search_keywords_env.split() if k]
-        if not keywords:
+        if not keywords:  # 방어 처리: Worker에서 이미 차단하지만 만약을 대비
             print("[ERROR] SEARCH_KEYWORDS에 유효한 키워드가 없습니다.", flush=True)
             sys.exit(1)
         triggered_by = "manual"
