@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나라장터 Slack 봇 — 사용 서비스 인포그래픽</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f1117;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  .card {
+    background: #1a1d27;
+    border-radius: 24px;
+    width: 900px;
+    padding: 48px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 40px;
+  }
+
+  /* 플로우 */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .flow-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+  .flow-label {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    font-weight: 600;
+  }
+  .arrow {
+    font-size: 22px;
+    color: #444;
+    margin: 0 8px;
+    margin-bottom: 20px;
+  }
+
+  /* 서비스 그리드 */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .service {
+    background: #22263a;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #2e3250;
+  }
+  .service-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .service-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .service-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .service-role {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    background: #2e3250;
+    color: #aac4ff;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* 보안 섹션 */
+  .security {
+    background: #1b2a1b;
+    border: 1px solid #2e5c2e;
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .security-icon { font-size: 32px; }
+  .security-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #6fcf6f;
+    margin-bottom: 8px;
+  }
+  .security-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sec-tag {
+    background: #1e3d1e;
+    color: #7ddc7d;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #2e5c2e;
+  }
+
+  .date-badge {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 12px;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="title">🏗️ 나라장터 Slack 알림 봇 — 아키텍처 & 서비스</div>
+  <div class="subtitle">2026-03-24 · 사용한 서비스 한눈에 보기</div>
+
+  <!-- 플로우 -->
+  <div class="flow">
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#3d1f5c;">💬</div>
+      <div class="flow-label">Slack<br>슬래시 커맨드</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#1f2c3d;">🌐</div>
+      <div class="flow-label">Cloudflare<br>Worker</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#1f3d2a;">⚙️</div>
+      <div class="flow-label">GitHub<br>Actions</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#3d2a1f;">🐍</div>
+      <div class="flow-label">Python<br>checker.py</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#1f3d3d;">🏛️</div>
+      <div class="flow-label">나라장터<br>G2B API</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-item">
+      <div class="flow-icon" style="background:#3d1f5c;">💬</div>
+      <div class="flow-label">Slack<br>결과 전송</div>
+    </div>
+  </div>
+
+  <!-- 서비스 그리드 -->
+  <div class="grid">
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#3d1f5c;">💬</div>
+        <div>
+          <div class="service-name">Slack</div>
+          <div class="service-role">사용자 인터페이스</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">슬래시 커맨드</span>
+        <span class="tag">Incoming Webhook</span>
+        <span class="tag">/나라장터</span>
+        <span class="tag">무료</span>
+      </div>
+    </div>
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#1f2c4a;">🌐</div>
+        <div>
+          <div class="service-name">Cloudflare Workers</div>
+          <div class="service-role">서버리스 미들웨어</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">JavaScript</span>
+        <span class="tag">HMAC-SHA256 검증</span>
+        <span class="tag">무료 100k/일</span>
+        <span class="tag">글로벌 엣지</span>
+      </div>
+    </div>
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#1f3d2a;">⚙️</div>
+        <div>
+          <div class="service-name">GitHub Actions</div>
+          <div class="service-role">자동화 실행 환경</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">스케줄 (KST 10시)</span>
+        <span class="tag">workflow_dispatch</span>
+        <span class="tag">무료 2000분/월</span>
+      </div>
+    </div>
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#3d2a1f;">🐍</div>
+        <div>
+          <div class="service-name">Python 3.11</div>
+          <div class="service-role">핵심 비즈니스 로직</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">checker.py</span>
+        <span class="tag">slack_notifier.py</span>
+        <span class="tag">g2b_api.py</span>
+        <span class="tag">pytest</span>
+      </div>
+    </div>
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#1f3d3d;">🏛️</div>
+        <div>
+          <div class="service-name">나라장터 G2B API</div>
+          <div class="service-role">입찰공고 데이터</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">data.go.kr</span>
+        <span class="tag">getBidPblancListInfoServc</span>
+        <span class="tag">JSON</span>
+        <span class="tag">무료</span>
+      </div>
+    </div>
+
+    <div class="service">
+      <div class="service-header">
+        <div class="service-icon" style="background:#2a1f3d;">📋</div>
+        <div>
+          <div class="service-name">GitHub Issues</div>
+          <div class="service-role">중복 방지 DB</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">seen-bids 라벨</span>
+        <span class="tag">JSON 저장</span>
+        <span class="tag">만료일 자동 정리</span>
+        <span class="tag">무료</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 보안 -->
+  <div class="security">
+    <div class="security-icon">🔒</div>
+    <div>
+      <div class="security-title">보안 적용 현황</div>
+      <div class="security-items">
+        <span class="sec-tag">GitHub Secrets — API 키 암호화</span>
+        <span class="sec-tag">Cloudflare Secrets — PAT, Signing Secret</span>
+        <span class="sec-tag">HMAC-SHA256 — Slack 서명 검증</span>
+        <span class="sec-tag">5분 타임스탬프 — 리플레이 공격 방지</span>
+        <span class="sec-tag">.gitignore — .env 파일 차단</span>
+        <span class="sec-tag">Fine-grained PAT — 최소 권한 원칙</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="date-badge">2026-03-24 · 총 비용: 무료 🎉</div>
+
+</div>
+</body>
+</html>
