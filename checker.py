@@ -7,6 +7,8 @@ from github_issue import get_seen_list, update_seen_list, _purge_expired
 from keywords import load_keywords, matches_all_keywords
 from slack_notifier import send_slack_notification
 
+DISPLAY_LIMIT = 10
+
 
 def _require_env(name: str) -> str:
     value = os.environ.get(name)
@@ -19,21 +21,47 @@ def _require_env(name: str) -> str:
 def run(keywords_path: str = "keywords.txt") -> None:
     api_key = _require_env("G2B_API_KEY")
     slack_url = _require_env("SLACK_WEBHOOK_URL")
-    gh_token = _require_env("GITHUB_TOKEN")
-    gh_repo = _require_env("GITHUB_REPOSITORY")
 
-    keywords = load_keywords(keywords_path)
     today = date.today()
     today_str = today.strftime("%Y%m%d")
     today_display = today.isoformat()
 
-    # 입찰공고 조회
-    bids = fetch_bids(api_key, today_str)
+    # ── 모드 감지 ────────────────────────────────────────────────
+    search_keywords_env = os.environ.get("SEARCH_KEYWORDS", "").strip()
+    if search_keywords_env:
+        keywords = [k for k in search_keywords_env.split() if k]
+        if not keywords:
+            print("[ERROR] SEARCH_KEYWORDS에 유효한 키워드가 없습니다.", flush=True)
+            sys.exit(1)
+        triggered_by = "manual"
+    else:
+        keywords = load_keywords(keywords_path)
+        triggered_by = "scheduled"
 
-    # 키워드 AND 매칭
+    # ── G2B API 조회 + 키워드 매칭 ──────────────────────────────
+    bids = fetch_bids(api_key, today_str)
     matched = [b for b in bids if matches_all_keywords(b.get("bidNtceNm", ""), keywords)]
 
-    # seen 목록 로드 및 만료 제거
+    # ── 수동 모드 ────────────────────────────────────────────────
+    if triggered_by == "manual":
+        matched.sort(key=lambda b: b.get("bidNtceDt", ""), reverse=True)
+        display_bids = matched[:DISPLAY_LIMIT]
+        total_matched = len(matched)
+
+        for b in display_bids:
+            b["deadline"] = parse_deadline(b.get("bidClseDt", ""))
+
+        send_slack_notification(
+            slack_url, display_bids, today_display,
+            triggered_by="manual", total_matched=total_matched,
+        )
+        print(f"[INFO] 수동 검색 완료: {total_matched}건 매칭, {len(display_bids)}건 전송", flush=True)
+        return
+
+    # ── 스케줄 모드 ──────────────────────────────────────────────
+    gh_token = _require_env("GITHUB_TOKEN")
+    gh_repo = _require_env("GITHUB_REPOSITORY")
+
     issue_number, seen = get_seen_list(gh_repo, gh_token)
     seen = _purge_expired(seen, today)
 
@@ -45,15 +73,21 @@ def run(keywords_path: str = "keywords.txt") -> None:
         update_seen_list(gh_repo, gh_token, issue_number, seen)
         return
 
-    # deadline 필드 추가 (slack_notifier용)
-    for b in new_bids:
+    # 최신순 정렬 → 상위 10건 display
+    new_bids.sort(key=lambda b: b.get("bidNtceDt", ""), reverse=True)
+    display_bids = new_bids[:DISPLAY_LIMIT]
+    total_matched = len(new_bids)
+
+    for b in new_bids:  # display 아닌 전체에 deadline 추가 (seen 등록용)
         b["deadline"] = parse_deadline(b.get("bidClseDt", ""))
 
-    # Slack 전송
-    send_slack_notification(slack_url, new_bids, today_display)
-    print(f"[INFO] Slack 알림 전송 완료: {len(new_bids)}건", flush=True)
+    send_slack_notification(
+        slack_url, display_bids, today_display,
+        triggered_by="scheduled", total_matched=total_matched,
+    )
+    print(f"[INFO] Slack 알림 전송 완료: {total_matched}건 매칭, {len(display_bids)}건 표시", flush=True)
 
-    # seen 목록 업데이트
+    # seen 목록: 표시 10건이 아닌 new_bids 전체 등록 (11번째 이후 중복 방지)
     for b in new_bids:
         seen.append({"id": b["bidNtceNo"], "deadline": b["deadline"]})
 
