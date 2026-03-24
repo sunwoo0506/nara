@@ -23,31 +23,85 @@ def test_format_bid_contains_key_fields():
     assert "g2b.go.kr" in text
 
 
-def test_send_slack_notification_single_batch():
+def test_send_slack_notification_single_message():
+    """3건이면 POST 1회."""
     bids = [make_bid(str(i)) for i in range(3)]
     mock_resp = MagicMock(status_code=200)
-
     with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
         send_slack_notification("https://hooks.slack.com/fake", bids, "2026-03-24")
-
     assert mock_post.call_count == 1
 
 
-def test_send_slack_notification_splits_over_20():
-    """21건이면 2번 전송."""
-    bids = [make_bid(str(i)) for i in range(21)]
+def test_send_slack_notification_scheduled_header():
+    """스케줄 모드 헤더에 🔔 포함."""
+    bids = [make_bid()]
     mock_resp = MagicMock(status_code=200)
-
     with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
-        send_slack_notification("https://hooks.slack.com/fake", bids, "2026-03-24")
+        send_slack_notification(
+            "https://hooks.slack.com/fake", bids, "2026-03-24",
+            triggered_by="scheduled", total_matched=1
+        )
+    text = mock_post.call_args[1]["json"]["text"]
+    assert "🔔" in text
+    assert "2026-03-24" in text
 
-    assert mock_post.call_count == 2
+
+def test_send_slack_notification_manual_header():
+    """수동 모드 헤더에 🔍 포함."""
+    bids = [make_bid()]
+    mock_resp = MagicMock(status_code=200)
+    with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
+        send_slack_notification(
+            "https://hooks.slack.com/fake", bids, "2026-03-24",
+            triggered_by="manual", total_matched=1
+        )
+    text = mock_post.call_args[1]["json"]["text"]
+    assert "🔍" in text
+
+
+def test_send_slack_notification_see_more_link_when_over_10():
+    """total_matched=15이면 '전체 보기' 링크 포함."""
+    bids = [make_bid(str(i)) for i in range(10)]
+    mock_resp = MagicMock(status_code=200)
+    with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
+        send_slack_notification(
+            "https://hooks.slack.com/fake", bids, "2026-03-24",
+            triggered_by="manual", total_matched=15
+        )
+    text = mock_post.call_args[1]["json"]["text"]
+    assert "15" in text
+    assert "g2b.go.kr" in text
+
+
+def test_send_slack_notification_no_see_more_when_exact():
+    """total_matched=3이면 '전체 보기' 링크 없음."""
+    bids = [make_bid(str(i)) for i in range(3)]
+    mock_resp = MagicMock(status_code=200)
+    with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
+        send_slack_notification(
+            "https://hooks.slack.com/fake", bids, "2026-03-24",
+            triggered_by="manual", total_matched=3
+        )
+    text = mock_post.call_args[1]["json"]["text"]
+    assert "전체 보기" not in text
+
+
+def test_send_slack_notification_empty_bids():
+    """bids가 빈 리스트면 '매칭된 공고가 없습니다' 전송."""
+    mock_resp = MagicMock(status_code=200)
+    with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
+        send_slack_notification(
+            "https://hooks.slack.com/fake", [], "2026-03-24",
+            triggered_by="manual", total_matched=0
+        )
+    assert mock_post.call_count == 1
+    text = mock_post.call_args[1]["json"]["text"]
+    assert "없습니다" in text
 
 
 def test_send_slack_notification_raises_on_failure():
     bids = [make_bid()]
     mock_resp = MagicMock(status_code=500)
-
     with patch("slack_notifier.requests.post", return_value=mock_resp):
         with pytest.raises(SystemExit):
             send_slack_notification("https://hooks.slack.com/fake", bids, "2026-03-24")
