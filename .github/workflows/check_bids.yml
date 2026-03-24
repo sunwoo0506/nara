@@ -1,4 +1,4 @@
-name: 나라장터 입찰공고 알림
+name: G2B Bid Alert
 
 on:
   schedule:
@@ -17,10 +17,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 의존성 설치
+      - name: Install dependencies
         run: pip install requests
 
-      - name: 입찰공고 확인 및 알림 전송
+      - name: Run checker
         run: python checker.py
         env:
           G2B_API_KEY: ${{ secrets.G2B_API_KEY }}
