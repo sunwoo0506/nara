@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** `/검색 [키워드]` slash command로 나라장터를 즉시 검색하고, 스케줄/수동 모두 최신순 10건 + 나라장터 더 보기 링크로 결과를 전송한다.
+**Goal:** `/나라장터 [키워드]` slash command로 나라장터를 즉시 검색하고, 스케줄/수동 모두 최신순 10건 + 나라장터 더 보기 링크로 결과를 전송한다.
 
 **Architecture:** Cloudflare Worker가 Slack 이벤트를 받아 GitHub Actions workflow_dispatch를 트리거한다. checker.py는 `SEARCH_KEYWORDS` 환경변수 유무로 수동/스케줄 모드를 분기하며, 수동 모드는 seen 목록을 건드리지 않는다. 결과 정렬과 10건 제한은 checker.py에서, 포맷과 전송은 slack_notifier.py에서 담당한다.
 
@@ -729,7 +729,7 @@ export default {
     if (!keywords) {
       return Response.json({
         response_type: "ephemeral",
-        text: "❌ 키워드를 입력해주세요. 예: `/검색 소프트웨어 유지보수`",
+        text: "❌ 키워드를 입력해주세요. 예: `/나라장터 소프트웨어 유지보수`",
       });
     }
 
@@ -793,7 +793,7 @@ git push
 
 1. [api.slack.com/apps](https://api.slack.com/apps) → 해당 앱 선택
 2. Slash Commands → Create New Command
-   - Command: `/검색`
+   - Command: `/나라장터`
    - Request URL: `https://nara-slack-bot.{account}.workers.dev`
    - Short Description: `나라장터 입찰공고 검색`
    - Usage Hint: `소프트웨어 유지보수`
@@ -801,7 +801,7 @@ git push
 
 - [ ] **Step 6: End-to-end 테스트**
 
-Slack DM에서 `/검색 소프트웨어` 입력
+Slack DM에서 `/나라장터 소프트웨어` 입력
 
 기대 결과:
 1. 즉시 `🔍 소프트웨어 검색 중... 잠시 후 결과를 전송합니다.` 수신

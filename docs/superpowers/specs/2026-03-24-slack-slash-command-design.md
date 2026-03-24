@@ -7,13 +7,13 @@
 
 ## 개요
 
-기존 스케줄 알림(매일 10시)에 더해, Slack slash command `/검색 [키워드]`로 언제든 원하는 키워드로 나라장터 입찰공고를 즉시 검색할 수 있도록 한다. 결과는 최신순 상위 10건만 표시하고, 초과 시 나라장터 전체 보기 링크를 제공한다.
+기존 스케줄 알림(매일 10시)에 더해, Slack slash command `/나라장터 [키워드]`로 언제든 원하는 키워드로 나라장터 입찰공고를 즉시 검색할 수 있도록 한다. 결과는 최신순 상위 10건만 표시하고, 초과 시 나라장터 전체 보기 링크를 제공한다.
 
 ---
 
 ## 요구사항
 
-- `/검색 소프트웨어 유지보수` 입력 → 해당 키워드로 나라장터 검색 → Slack으로 결과 전송
+- `/나라장터 소프트웨어 유지보수` 입력 → 해당 키워드로 나라장터 검색 → Slack으로 결과 전송
 - 키워드 AND 조건: 스페이스로 구분된 키워드가 모두 공고명에 포함되어야 매칭
 - 검색 결과는 공고일시(`bidNtceDt`) 기준 최신순 정렬, 최대 10건 표시
 - 10건 초과 시 하단에 나라장터 전체 보기 링크 표시
@@ -25,7 +25,7 @@
 ## 아키텍처
 
 ```
-[Slack] /검색 소프트웨어 유지보수
+[Slack] /나라장터 소프트웨어 유지보수
         ↓
 [Cloudflare Worker]
  - Slack Signing Secret 검증 (HMAC-SHA256)
@@ -232,7 +232,7 @@ if resp.status_code != 200:
 
 1. **GitHub Fine-grained PAT 발급** — Settings → Developer settings → Fine-grained tokens → `sunwoo0506/nara`, 권한: Actions (write)
 2. **Cloudflare Worker 배포** — 대시보드에서 `worker.js` 붙여넣기 → Secrets 2개 등록 → Worker URL 확인
-3. **Slack App slash command 등록** — Slack App → Slash Commands → `/검색` → Request URL에 Worker URL 입력
+3. **Slack App slash command 등록** — Slack App → Slash Commands → `/나라장터` → Request URL에 Worker URL 입력
 4. **테스트** — Slack DM에서 `/검색 소프트웨어` 입력 → "검색 중..." 확인 → 결과 수신 확인
 
 ---
@@ -241,7 +241,7 @@ if resp.status_code != 200:
 
 | 상황 | 처리 |
 |------|------|
-| `/검색` 키워드 없음 | Worker가 Slack에 즉시 안내 메시지 반환 |
+| `/나라장터` 키워드 없음 | Worker가 Slack에 즉시 안내 메시지 반환 |
 | GitHub API 호출 실패 | Worker 로그에 기록, Slack에 알림 없음 |
 | G2B API 오류 | exit(1) → Actions 실패로 표시 |
 | 수동 검색 매칭 0건 | "매칭된 공고가 없습니다" Slack 전송 |
