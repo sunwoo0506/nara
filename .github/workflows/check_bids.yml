@@ -3,7 +3,12 @@ name: G2B Bid Alert
 on:
   schedule:
     - cron: '0 1 * * *'   # UTC 01:00 = KST 10:00 (한국 UTC+9, DST 없음)
-  workflow_dispatch:        # 수동 실행 (테스트용)
+  workflow_dispatch:
+    inputs:
+      keywords:
+        description: '검색 키워드 (스페이스 구분, AND 조건). 예: 소프트웨어 유지보수'
+        required: false
+        default: ''
 
 jobs:
   check-bids:
@@ -27,3 +32,4 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          SEARCH_KEYWORDS: ${{ github.event.inputs.keywords }}
