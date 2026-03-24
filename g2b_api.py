@@ -36,7 +36,6 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
     end_dt = date_str + "2359"
 
     while True:
-        # serviceKey는 requests가 재인코딩하지 않도록 URL에 직접 포함
         import urllib.parse
         query = urllib.parse.urlencode({
             "pageNo": page,
@@ -45,7 +44,9 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
             "inqryBgnDt": begin_dt,
             "inqryEndDt": end_dt,
         })
-        url = f"{G2B_ENDPOINT}?serviceKey={api_key}&{query}"
+        # 디코딩 키의 특수문자(+, /, = 등)를 URL 인코딩
+        encoded_key = urllib.parse.quote(api_key, safe='')
+        url = f"{G2B_ENDPOINT}?serviceKey={encoded_key}&{query}"
 
         resp = requests.get(url, timeout=30)
 
