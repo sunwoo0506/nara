@@ -1,0 +1,52 @@
+# 프로젝트 회고: 나라장터 Slack 알림 봇
+
+**날짜:** 2026-03-24
+
+---
+
+## 진행한 내용
+
+### 1단계: G2B API 디버깅
+- 나라장터 API 호출 시 HTTP 404 오류 발생
+- GitHub Actions에서 `checker.py` 실행 실패
+
+### 2단계: Slack 슬래시 커맨드 설계 및 구현
+- `/나라장터 [키워드]` 기능 설계
+- `slack_notifier.py` — 10건 제한, 헤더 분기, 더보기 링크
+- `checker.py` — 수동/스케줄 모드 분기
+- `check_bids.yml` — workflow_dispatch inputs 추가
+- `cloudflare-worker/worker.js` — Slack 서명 검증, GitHub 트리거
+
+### 3단계: Cloudflare Worker 배포 및 설정
+- Worker 생성, 코드 배포, Secrets 등록 (GH_PAT, SLACK_SIGNING_SECRET)
+
+---
+
+## 발생한 문제들
+
+| 문제 | 원인 | 해결 |
+|------|------|------|
+| G2B API 404 | 오퍼레이션명 오타 (`getBidPblancListInfoServc01`) | 올바른 엔드포인트로 수정 |
+| G2B API 404 (2차) | `inqryDiv=1` 파라미터 누락 + API키 이중인코딩 | 파라미터 추가, `unquote()` 처리 |
+| Python 실행 안됨 | Windows Microsoft Store 스텁 충돌 | `uv.exe` 직접 경로 사용 |
+| 한글 출력 깨짐 | Windows cp949 인코딩 | `PYTHONIOENCODING=utf-8` 설정 |
+| Cloudflare Worker 생성 실패 | 이메일 인증(verify) 미완료 | 이메일 인증 후 해결 |
+| Worker 이름 입력 불가 | 인증 미완료로 인한 UI 오작동 | 인증 후 정상화 |
+
+---
+
+## 다음에 같은 실수를 하지 않으려면
+
+**API 연동 시:**
+- 공식 문서에서 파라미터 필수값 먼저 확인
+- API키 인코딩 상태 확인 (이미 인코딩된 키를 다시 인코딩하지 않기)
+
+**새 서비스 가입 시:**
+- 이메일 인증 먼저 완료 후 작업 시작
+
+**배포 전:**
+- Cloudflare처럼 외부 서비스는 계정 상태(인증, 플랜) 확인 먼저
+
+**개발 환경:**
+- Windows에서 Python 경로 명확히 지정 (`uv.exe` 절대경로)
+- 한글 사용 시 `PYTHONIOENCODING=utf-8` 기본 설정
