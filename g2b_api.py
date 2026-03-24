@@ -51,6 +51,8 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
 
         if resp.status_code != 200:
             print(f"[ERROR] 나라장터 API 호출 실패: HTTP {resp.status_code}", flush=True)
+            print(f"[DEBUG] URL: {url[:200]}", flush=True)
+            print(f"[DEBUG] Response: {resp.text[:500]}", flush=True)
             sys.exit(1)
 
         body = resp.json()["response"]["body"]
