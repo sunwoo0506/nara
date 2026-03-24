@@ -1,0 +1,29 @@
+name: 나라장터 입찰공고 알림
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # UTC 01:00 = KST 10:00 (한국 UTC+9, DST 없음)
+  workflow_dispatch:        # 수동 실행 (테스트용)
+
+jobs:
+  check-bids:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write         # GITHUB_TOKEN에 Issues 쓰기 권한 부여
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 의존성 설치
+        run: pip install requests
+
+      - name: 입찰공고 확인 및 알림 전송
+        run: python checker.py
+        env:
+          G2B_API_KEY: ${{ secrets.G2B_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
