@@ -36,16 +36,18 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
     end_dt = date_str + "2359"
 
     while True:
-        params = {
-            "serviceKey": api_key,
+        # serviceKey는 requests가 재인코딩하지 않도록 URL에 직접 포함
+        import urllib.parse
+        query = urllib.parse.urlencode({
             "pageNo": page,
             "numOfRows": num_of_rows,
             "type": "json",
             "inqryBgnDt": begin_dt,
             "inqryEndDt": end_dt,
-        }
+        })
+        url = f"{G2B_ENDPOINT}?serviceKey={api_key}&{query}"
 
-        resp = requests.get(G2B_ENDPOINT, params=params, timeout=30)
+        resp = requests.get(url, timeout=30)
 
         if resp.status_code != 200:
             print(f"[ERROR] 나라장터 API 호출 실패: HTTP {resp.status_code}", flush=True)
