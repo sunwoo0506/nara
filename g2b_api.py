@@ -1,4 +1,5 @@
 import sys
+import urllib.parse
 from datetime import datetime
 import requests
 
@@ -35,24 +36,24 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
     begin_dt = date_str + "0000"
     end_dt = date_str + "2359"
 
+    # 키가 이미 URL인코딩된 상태로 저장된 경우를 대비해 디코딩 후 requests에 위임
+    decoded_key = urllib.parse.unquote(api_key)
+
     while True:
-        import urllib.parse
-        query = urllib.parse.urlencode({
+        params = {
+            "serviceKey": decoded_key,
             "pageNo": page,
             "numOfRows": num_of_rows,
             "type": "json",
             "inqryBgnDt": begin_dt,
             "inqryEndDt": end_dt,
-        })
-        # 디코딩 키의 특수문자(+, /, = 등)를 URL 인코딩
-        encoded_key = urllib.parse.quote(api_key, safe='')
-        url = f"{G2B_ENDPOINT}?serviceKey={encoded_key}&{query}"
+        }
 
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(G2B_ENDPOINT, params=params, timeout=30)
 
         if resp.status_code != 200:
             print(f"[ERROR] 나라장터 API 호출 실패: HTTP {resp.status_code}", flush=True)
-            print(f"[DEBUG] URL: {url[:200]}", flush=True)
+            print(f"[DEBUG] URL: {resp.url[:300]}", flush=True)
             print(f"[DEBUG] Response: {resp.text[:1000]}", flush=True)
             sys.exit(1)
 
