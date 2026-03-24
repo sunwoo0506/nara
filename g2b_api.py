@@ -45,6 +45,7 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
             "pageNo": page,
             "numOfRows": num_of_rows,
             "type": "json",
+            "inqryDiv": "1",
             "inqryBgnDt": begin_dt,
             "inqryEndDt": end_dt,
         }
