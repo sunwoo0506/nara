@@ -2,7 +2,7 @@ import sys
 from datetime import datetime
 import requests
 
-G2B_ENDPOINT = "https://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoServc"
+G2B_ENDPOINT = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService/getBidPblancListInfoServc01"
 
 
 def parse_deadline(value: str | None) -> str:
@@ -53,7 +53,7 @@ def fetch_bids(api_key: str, date_str: str) -> list[dict]:
         if resp.status_code != 200:
             print(f"[ERROR] 나라장터 API 호출 실패: HTTP {resp.status_code}", flush=True)
             print(f"[DEBUG] URL: {url[:200]}", flush=True)
-            print(f"[DEBUG] Response: {resp.text[:500]}", flush=True)
+            print(f"[DEBUG] Response: {resp.text[:1000]}", flush=True)
             sys.exit(1)
 
         body = resp.json()["response"]["body"]
