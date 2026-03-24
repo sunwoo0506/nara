@@ -2,7 +2,7 @@ import sys
 from datetime import datetime
 import requests
 
-G2B_ENDPOINT = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService/getBidPblancListInfoServc"
+G2B_ENDPOINT = "https://apis.data.go.kr/1230000/BidPublicInfoService04/getBidPblancListInfoServc"
 
 
 def parse_deadline(value: str | None) -> str:
