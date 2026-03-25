@@ -22,7 +22,7 @@ def _purge_expired(seen: list[dict], today: date) -> list[dict]:
 def get_seen_list(repo: str, token: str) -> tuple[int, list[dict]]:
     """seen-bids 라벨 Issue에서 seen 목록 반환. 없으면 새 Issue 생성."""
     url = f"{GITHUB_API}/repos/{repo}/issues"
-    resp = requests.get(url, params={"labels": "seen-bids", "state": "open"}, headers=_headers(token))
+    resp = requests.get(url, params={"labels": "seen-bids", "state": "open"}, headers=_headers(token), timeout=30)
 
     if resp.status_code != 200:
         print(f"[ERROR] GitHub Issues 조회 실패: HTTP {resp.status_code}", flush=True)
@@ -43,6 +43,7 @@ def get_seen_list(repo: str, token: str) -> tuple[int, list[dict]]:
         url,
         json={"title": "나라장터 알림 seen 목록", "body": '{"seen": []}', "labels": ["seen-bids"]},
         headers=_headers(token),
+        timeout=30,
     )
     if create_resp.status_code != 201:
         print(f"[ERROR] GitHub Issue 생성 실패: HTTP {create_resp.status_code}", flush=True)
@@ -55,7 +56,7 @@ def update_seen_list(repo: str, token: str, issue_number: int, seen: list[dict])
     """seen 목록을 GitHub Issue 본문에 저장."""
     url = f"{GITHUB_API}/repos/{repo}/issues/{issue_number}"
     body = json.dumps({"seen": seen}, ensure_ascii=False)
-    resp = requests.patch(url, json={"body": body}, headers=_headers(token))
+    resp = requests.patch(url, json={"body": body}, headers=_headers(token), timeout=30)
 
     if resp.status_code != 200:
         print(f"[ERROR] GitHub Issue 업데이트 실패: HTTP {resp.status_code}", flush=True)
