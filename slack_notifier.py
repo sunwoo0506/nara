@@ -2,18 +2,15 @@ import sys
 import requests
 
 DISPLAY_LIMIT = 10
-G2B_HOME = "https://www.g2b.go.kr"
-G2B_URL = "https://www.g2b.go.kr/pt/menu/selectSubFrame.do?bidNtceNo={bid_no}"
+G2B_BID_LIST = "https://www.g2b.go.kr:8101/ep/tbid/tbidList.do?bidSearchType=1&searchType=1"
 
 
 def format_bid(bid: dict) -> str:
-    url = G2B_URL.format(bid_no=bid["bidNtceNo"])
     return (
         f"📌 {bid['bidNtceNm']} ({bid['ntceInsttNm']})\n"
         f"   • 공고번호: {bid['bidNtceNo']}\n"
         f"   • 입찰방식: {bid['bidMethdNm']}\n"
-        f"   • 마감일: {bid['deadline']}\n"
-        f"   • 🔗 <{url}|공고 바로가기>"
+        f"   • 마감일: {bid['deadline']}"
     )
 
 
@@ -37,11 +34,14 @@ def send_slack_notification(
         bid_texts = "\n\n".join(format_bid(b) for b in bids)
         if total_matched > DISPLAY_LIMIT:
             footer = (
-                f"📋 총 {total_matched}건 매칭 (상위 {DISPLAY_LIMIT}건 표시)"
-                f" · <{G2B_HOME}|나라장터에서 전체 보기>"
+                f"📋 총 {total_matched}건 매칭 (상위 {DISPLAY_LIMIT}건 표시)\n"
+                f"<{G2B_BID_LIST}|🔗 나라장터 입찰공고 전체 보기>"
             )
         else:
-            footer = f"총 {total_matched}건 매칭"
+            footer = (
+                f"📋 총 {total_matched}건 매칭\n"
+                f"<{G2B_BID_LIST}|🔗 나라장터 입찰공고 전체 보기>"
+            )
         text = f"{header}\n\n{bid_texts}\n\n{footer}"
 
     resp = requests.post(webhook_url, json={"text": text}, timeout=10)
