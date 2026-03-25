@@ -42,7 +42,13 @@ def run(keywords_path: str = "keywords.txt") -> None:
     # ── G2B API 조회 + 마감 미경과 필터 + 키워드 매칭 ───────────
     bids = fetch_bids(api_key, begin_date, today_str)
     today_dt = today.strftime("%Y-%m-%d") + " 00:00:00"
-    active_bids = [b for b in bids if b.get("bidClseDt", "9999-12-31 23:59:59") >= today_dt]
+    def _is_active(b):
+        dt = b.get("bidClseDt", "")
+        if not dt or dt == "-":
+            return True
+        return dt >= today_dt
+
+    active_bids = [b for b in bids if _is_active(b)]
     matched = [b for b in active_bids if matches_all_keywords(b.get("bidNtceNm", ""), keywords)]
 
     # ── 수동 모드 ────────────────────────────────────────────────
