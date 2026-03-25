@@ -18,16 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: pip install requests
+      - uses: astral-sh/setup-uv@v5
 
       - name: Run checker
-        run: python checker.py
+        run: uv run --with requests python checker.py
         env:
           G2B_API_KEY: ${{ secrets.G2B_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
