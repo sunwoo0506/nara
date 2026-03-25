@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import date
+from datetime import date, timedelta
 
 from g2b_api import fetch_bids, parse_deadline
 from github_issue import get_seen_list, update_seen_list, _purge_expired
@@ -25,6 +25,7 @@ def run(keywords_path: str = "keywords.txt") -> None:
     today = date.today()
     today_str = today.strftime("%Y%m%d")
     today_display = today.isoformat()
+    begin_date = (today - timedelta(days=60)).strftime("%Y%m%d")
 
     # ── 모드 감지 ────────────────────────────────────────────────
     search_keywords_env = os.environ.get("SEARCH_KEYWORDS", "").strip()
@@ -38,9 +39,11 @@ def run(keywords_path: str = "keywords.txt") -> None:
         keywords = load_keywords(keywords_path)
         triggered_by = "scheduled"
 
-    # ── G2B API 조회 + 키워드 매칭 ──────────────────────────────
-    bids = fetch_bids(api_key, today_str)
-    matched = [b for b in bids if matches_all_keywords(b.get("bidNtceNm", ""), keywords)]
+    # ── G2B API 조회 + 마감 미경과 필터 + 키워드 매칭 ───────────
+    bids = fetch_bids(api_key, begin_date, today_str)
+    today_dt = today_str + "000000"
+    active_bids = [b for b in bids if b.get("bidClseDt", "99991231235959") >= today_dt]
+    matched = [b for b in active_bids if matches_all_keywords(b.get("bidNtceNm", ""), keywords)]
 
     # ── 수동 모드 ────────────────────────────────────────────────
     if triggered_by == "manual":

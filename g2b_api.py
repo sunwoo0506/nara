@@ -30,14 +30,14 @@ def _extract_items(body: dict) -> list:
     return item if item else []
 
 
-def fetch_bids(api_key: str, date_str: str) -> list[dict]:
-    """당일 입찰공고 전체를 페이지네이션하여 반환. date_str: 'YYYYMMDD'"""
+def fetch_bids(api_key: str, begin_date: str, end_date: str) -> list[dict]:
+    """입찰공고를 페이지네이션하여 반환. begin_date/end_date: 'YYYYMMDD'"""
     all_bids = []
     page = 1
     num_of_rows = 100
 
-    begin_dt = date_str + "0000"
-    end_dt = date_str + "2359"
+    begin_dt = begin_date + "0000"
+    end_dt = end_date + "2359"
 
     # 키가 이미 URL인코딩된 상태로 저장된 경우를 대비해 디코딩 후 requests에 위임
     decoded_key = urllib.parse.unquote(api_key)

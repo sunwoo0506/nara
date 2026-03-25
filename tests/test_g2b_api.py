@@ -35,7 +35,7 @@ def test_fetch_bids_returns_list():
     mock_resp.json.return_value = make_api_response([make_item()])
 
     with patch("g2b_api.requests.get", return_value=mock_resp):
-        bids = fetch_bids("FAKE_KEY", "20260324")
+        bids = fetch_bids("FAKE_KEY", "20260224", "20260324")
 
     assert isinstance(bids, list)
     assert len(bids) == 1
@@ -49,7 +49,7 @@ def test_fetch_bids_single_item_as_dict():
     mock_resp.json.return_value = make_api_response(make_item(), total_count=1)
 
     with patch("g2b_api.requests.get", return_value=mock_resp):
-        bids = fetch_bids("FAKE_KEY", "20260324")
+        bids = fetch_bids("FAKE_KEY", "20260224", "20260324")
 
     assert len(bids) == 1
 
@@ -65,7 +65,7 @@ def test_fetch_bids_pagination():
     mock_resp2.json.return_value = page2
 
     with patch("g2b_api.requests.get", side_effect=[mock_resp1, mock_resp2]):
-        bids = fetch_bids("FAKE_KEY", "20260324")
+        bids = fetch_bids("FAKE_KEY", "20260224", "20260324")
 
     assert len(bids) == 2
 
@@ -76,7 +76,7 @@ def test_fetch_bids_raises_on_api_error():
 
     with patch("g2b_api.requests.get", return_value=mock_resp):
         with pytest.raises(SystemExit):
-            fetch_bids("FAKE_KEY", "20260324")
+            fetch_bids("FAKE_KEY", "20260224", "20260324")
 
 
 def test_fetch_bids_empty_result():
@@ -90,7 +90,7 @@ def test_fetch_bids_empty_result():
     }
 
     with patch("g2b_api.requests.get", return_value=mock_resp):
-        bids = fetch_bids("FAKE_KEY", "20260324")
+        bids = fetch_bids("FAKE_KEY", "20260224", "20260324")
 
     assert bids == []
 
