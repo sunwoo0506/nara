@@ -61,7 +61,12 @@ def fetch_bids(api_key: str, begin_date: str, end_date: str) -> list[dict]:
             print(f"[DEBUG] Response: {resp.text[:1000]}", flush=True)
             sys.exit(1)
 
-        body = resp.json()["response"]["body"]
+        raw = resp.json()
+        if "response" not in raw:
+            print(f"[ERROR] 예상치 못한 API 응답 구조: {str(raw)[:500]}", flush=True)
+            sys.exit(1)
+
+        body = raw["response"]["body"]
         total_count = int(body.get("totalCount", 0))
         items = _extract_items(body)
         all_bids.extend(items)
