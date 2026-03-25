@@ -21,6 +21,9 @@ def _extract_items(body: dict) -> list:
     items_field = body.get("items")
     if not items_field or items_field == "":
         return []
+    # items 자체가 list인 경우 (결과가 여러 건일 때 API가 직접 list 반환)
+    if isinstance(items_field, list):
+        return items_field
     item = items_field.get("item", [])
     if isinstance(item, dict):
         return [item]
