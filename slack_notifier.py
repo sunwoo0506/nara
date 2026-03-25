@@ -2,7 +2,7 @@ import sys
 import requests
 
 DISPLAY_LIMIT = 10
-G2B_BID_LIST = "https://www.g2b.go.kr:8101/ep/tbid/tbidList.do?bidSearchType=1&searchType=1"
+G2B_BID_LIST = "https://www.g2b.go.kr/"
 
 
 def format_bid(bid: dict) -> str:
