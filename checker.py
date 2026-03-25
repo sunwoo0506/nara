@@ -25,7 +25,7 @@ def run(keywords_path: str = "keywords.txt") -> None:
     today = date.today()
     today_str = today.strftime("%Y%m%d")
     today_display = today.isoformat()
-    begin_date = (today - timedelta(days=7)).strftime("%Y%m%d")
+    begin_date = (today - timedelta(days=25)).strftime("%Y%m%d")
 
     # ── 모드 감지 ────────────────────────────────────────────────
     search_keywords_env = os.environ.get("SEARCH_KEYWORDS", "").strip()
