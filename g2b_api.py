@@ -11,7 +11,7 @@ def parse_deadline(value: str | None) -> str:
     if not value:
         return "9999-12-31"
     try:
-        return datetime.strptime(value, "%Y%m%d%H%M%S").strftime("%Y-%m-%d")
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
     except ValueError:
         return "9999-12-31"
 

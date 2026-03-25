@@ -4,7 +4,7 @@ import pytest
 from g2b_api import fetch_bids, parse_deadline, G2B_ENDPOINT
 
 
-def make_item(bid_no="20260324001", name="제주 AI 시스템", deadline="20260407180000"):
+def make_item(bid_no="20260324001", name="제주 AI 시스템", deadline="2026-04-07 18:00:00"):
     return {
         "bidNtceNo": bid_no,
         "bidNtceNm": name,
@@ -96,7 +96,7 @@ def test_fetch_bids_empty_result():
 
 
 def test_parse_deadline_normal():
-    assert parse_deadline("20260407180000") == "2026-04-07"
+    assert parse_deadline("2026-04-07 18:00:00") == "2026-04-07"
 
 
 def test_parse_deadline_empty():
