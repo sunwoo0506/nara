@@ -3,7 +3,7 @@ import urllib.parse
 from datetime import datetime
 import requests
 
-G2B_ENDPOINT = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService/getBidPblancListInfoServc"
+G2B_ENDPOINT = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService/getBidPblancListInfoServcPPSSrch"
 
 
 def parse_deadline(value: str | None) -> str:
@@ -30,8 +30,10 @@ def _extract_items(body: dict) -> list:
     return item if item else []
 
 
-def fetch_bids(api_key: str, begin_date: str, end_date: str) -> list[dict]:
-    """입찰공고를 페이지네이션하여 반환. begin_date/end_date: 'YYYYMMDD'"""
+def fetch_bids(api_key: str, begin_date: str, end_date: str, keyword: str | None = None) -> list[dict]:
+    """입찰공고를 페이지네이션하여 반환. begin_date/end_date: 'YYYYMMDD'
+    keyword: 서버 측 1차 필터용 공고명 검색어 (bidNtceNm). 없으면 전체 조회.
+    """
     all_bids = []
     page = 1
     num_of_rows = 100
@@ -52,6 +54,8 @@ def fetch_bids(api_key: str, begin_date: str, end_date: str) -> list[dict]:
             "inqryBgnDt": begin_dt,
             "inqryEndDt": end_dt,
         }
+        if keyword:
+            params["bidNtceNm"] = keyword
 
         resp = requests.get(G2B_ENDPOINT, params=params, timeout=30)
 

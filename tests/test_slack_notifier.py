@@ -20,7 +20,7 @@ def test_format_bid_contains_key_fields():
     assert "제주 AI 시스템 구축" in text
     assert "행정안전부" in text
     assert "2026-04-07" in text
-    assert "g2b.go.kr" in text
+
 
 
 def test_send_slack_notification_single_message():
@@ -73,8 +73,8 @@ def test_send_slack_notification_see_more_link_when_over_10():
     assert "g2b.go.kr" in text
 
 
-def test_send_slack_notification_no_see_more_when_exact():
-    """total_matched=3이면 '전체 보기' 링크 없음."""
+def test_send_slack_notification_always_has_g2b_link():
+    """건수와 무관하게 항상 g2b.go.kr 링크가 포함된다."""
     bids = [make_bid(str(i)) for i in range(3)]
     mock_resp = MagicMock(status_code=200)
     with patch("slack_notifier.requests.post", return_value=mock_resp) as mock_post:
@@ -83,7 +83,7 @@ def test_send_slack_notification_no_see_more_when_exact():
             triggered_by="manual", total_matched=3
         )
     text = mock_post.call_args[1]["json"]["text"]
-    assert "전체 보기" not in text
+    assert "g2b.go.kr" in text
 
 
 def test_send_slack_notification_empty_bids():

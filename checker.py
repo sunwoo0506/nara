@@ -40,7 +40,8 @@ def run(keywords_path: str = "keywords.txt") -> None:
         triggered_by = "scheduled"
 
     # ── G2B API 조회 + 마감 미경과 필터 + 키워드 매칭 ───────────
-    bids = fetch_bids(api_key, begin_date, today_str)
+    # 첫 번째 키워드를 서버 측 1차 필터로 사용, 나머지는 Python AND 필터
+    bids = fetch_bids(api_key, begin_date, today_str, keyword=keywords[0])
     today_dt = today.strftime("%Y-%m-%d") + " 00:00:00"
     def _is_active(b):
         dt = b.get("bidClseDt", "")

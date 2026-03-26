@@ -95,6 +95,32 @@ def test_fetch_bids_empty_result():
     assert bids == []
 
 
+def test_fetch_bids_passes_keyword_param():
+    """keyword 인수가 있을 때 bidNtceNm 파라미터가 API 요청에 포함되는지 확인."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = make_api_response([make_item()])
+
+    with patch("g2b_api.requests.get", return_value=mock_resp) as mock_get:
+        fetch_bids("FAKE_KEY", "20260224", "20260324", keyword="소프트웨어")
+
+    call_params = mock_get.call_args[1]["params"]
+    assert call_params["bidNtceNm"] == "소프트웨어"
+
+
+def test_fetch_bids_no_keyword_param():
+    """keyword 없을 때 bidNtceNm이 params에 포함되지 않는지 확인."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = make_api_response([make_item()])
+
+    with patch("g2b_api.requests.get", return_value=mock_resp) as mock_get:
+        fetch_bids("FAKE_KEY", "20260224", "20260324")
+
+    call_params = mock_get.call_args[1]["params"]
+    assert "bidNtceNm" not in call_params
+
+
 def test_parse_deadline_normal():
     assert parse_deadline("2026-04-07 18:00:00") == "2026-04-07"
 
